@@ -12543,7 +12543,8 @@ return el('div', { class:'grid' }, [
 
   // init
   wireNotificationsBell();
-  setUser(userName);
+  if (userName) setUser(userName);
+  else updateAvatar();
   updateNotificationsBell();
 
   // modal close handlers
