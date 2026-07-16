@@ -8,5 +8,5 @@ export default defineConfig([
   {
     ignores: ["src/legacy/app.ts"],
   },
-  globalIgnores([".next/**", "out/**", "public/app.js", "public/sw.js"]),
+  globalIgnores([".next/**", "out/**", "public/sw.js"]),
 ]);
