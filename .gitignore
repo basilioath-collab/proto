@@ -1,0 +1,7 @@
+.next/
+out/
+node_modules/
+public/sw.js
+public/app.js
+*.tsbuildinfo
+npm-debug.log*
