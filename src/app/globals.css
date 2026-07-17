@@ -960,6 +960,16 @@ main{padding:14px;overflow-x:hidden}
   --radius:16px;
   --shadow:0 1px 2px rgba(16,24,32,.04),0 12px 30px rgba(16,24,32,.055);
   --shadow-lg:0 24px 70px rgba(8,13,18,.18);
+  --nested-surface:var(--surface-raised);
+  --nested-surface-soft:var(--surface);
+  --nested-shadow:0 8px 22px rgba(16,24,32,.05);
+  --info:#4F6B8A;
+  --info-soft:rgba(79,107,138,.09);
+  --info-border:rgba(79,107,138,.22);
+  --planned-bar-start:#DCE2E7;
+  --planned-bar-end:#3E4A56;
+  --executed-bar-start:#BBF7D0;
+  --executed-bar-end:#15803D;
   --sans:Inter,"Segoe UI Variable","Segoe UI",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
 }
 
@@ -993,6 +1003,16 @@ html[data-theme="dark"]{
   --alert-soft:rgba(241,178,74,.10);
   --shadow:0 1px 2px rgba(0,0,0,.22),0 16px 40px rgba(0,0,0,.22);
   --shadow-lg:0 28px 80px rgba(0,0,0,.48);
+  --nested-surface:var(--surface-raised);
+  --nested-surface-soft:var(--surface-soft);
+  --nested-shadow:0 12px 30px rgba(0,0,0,.18);
+  --info:#8AB4F8;
+  --info-soft:rgba(96,165,250,.12);
+  --info-border:rgba(96,165,250,.26);
+  --planned-bar-start:#52606D;
+  --planned-bar-end:#C7D0D8;
+  --executed-bar-start:#4D7C0F;
+  --executed-bar-end:#A3E635;
 }
 
 html{background:var(--bg);scroll-behavior:smooth}
@@ -1056,6 +1076,74 @@ thead th{background:var(--surface-soft);color:var(--muted)}tbody tr:hover td,tab
 dialog.modal{width:min(1020px,calc(100vw - 36px));max-width:1020px;padding:0;background:transparent;overflow:visible}dialog.modal:has(.modalCardCompact){max-width:610px}dialog#userModal{max-width:920px}.modalCard{width:100%;max-width:100%;max-height:calc(100dvh - 36px);border-radius:18px;background:var(--surface-raised);border-color:var(--border);box-shadow:var(--shadow-lg)}.modalCardCompact{max-width:610px}.modalHd{padding:18px 20px 14px}.modalHeaderActions{display:flex;align-items:center;gap:8px}.modalTitle{font-size:16px;font-weight:730;letter-spacing:-.02em}.modalSub{font-size:11px}.modalBd{max-height:calc(100dvh - 150px);padding:19px 20px}.modalFormGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.modalFormGrid .fieldWide{grid-column:1/-1}.modalActionsInline{margin-top:18px}.modalUserPremium{padding:0}.modalUserPremium .formStack,.modalUserPremium>.userWarningBox,.modalUserPremium>.modalActions{margin-right:20px;margin-left:20px}.modalUserPremium>.modalActions{margin-bottom:20px}.userFlowBlock{background:var(--surface-soft);border-color:var(--border)}.userFlowBlock select:disabled,.userFlowBlock input:disabled{background:var(--surface);color:var(--muted)}.checkLabel{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--muted);font-size:11px}.checkLabel input{width:15px;height:15px}.decisionBtn{display:grid;min-height:66px;justify-items:start;padding:12px 14px;text-align:left}.decisionBtn span{margin-top:4px;color:var(--muted);font-size:10px;font-weight:550}.decisionBtn.primary span{color:rgba(255,255,255,.68)}.mergeActions{gap:9px}
 .globalDbWarn{border-radius:12px;background:var(--danger-soft)}
 .tag{background:var(--surface-soft)}
+
+/* Apontamentos e execucao: superficies neutras com cor reservada ao significado. */
+.evaluationProjectCard,
+.resourceExecutionCard,
+.apontamentoEntryCard,
+.apontamentoEditorSurface,
+.launchEntryCard,
+.evaluationEmptyState{
+  border:1px solid var(--border);
+  background:var(--nested-surface);
+  color:var(--text);
+  box-shadow:var(--nested-shadow);
+}
+.evaluationProjectCard{
+  --card-accent:var(--border);
+  display:flex;
+  min-height:340px;
+  flex-direction:column;
+  gap:12px;
+  padding:14px;
+  border-left:3px solid var(--card-accent);
+  border-radius:18px;
+}
+.evaluationProjectCard.tone-ok{--card-accent:color-mix(in srgb,var(--success) 68%,var(--border))}
+.evaluationProjectCard.tone-warn{--card-accent:color-mix(in srgb,var(--warning) 72%,var(--border))}
+.evaluationProjectCard.tone-danger{--card-accent:color-mix(in srgb,var(--danger) 72%,var(--border))}
+.evaluationProjectCard.tone-info{--card-accent:color-mix(in srgb,var(--info) 62%,var(--border))}
+.evaluationMetric,.executionMetric{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
+  background:var(--nested-surface-soft);
+}
+.executionMetric{padding:12px}
+.evaluationMetric.tone-ok,.executionMetric.tone-ok{border-color:color-mix(in srgb,var(--success) 30%,var(--border));background:var(--success-soft)}
+.evaluationMetric.tone-warn,.executionMetric.tone-warn{border-color:color-mix(in srgb,var(--warning) 34%,var(--border));background:var(--warning-soft)}
+.evaluationMetric.tone-danger,.executionMetric.tone-danger{border-color:var(--danger-border);background:var(--danger-soft)}
+.evaluationMetric.tone-info,.executionMetric.tone-info{border-color:var(--info-border);background:var(--info-soft)}
+.evaluationMetricValue{font-weight:950;font-size:18px;line-height:1.15}
+.executionMetricValue{margin-top:6px;font-size:20px;font-weight:950}
+.evaluationMetric.tone-ok .evaluationMetricValue,.executionMetric.tone-ok .executionMetricValue{color:var(--success)}
+.evaluationMetric.tone-warn .evaluationMetricValue,.executionMetric.tone-warn .executionMetricValue{color:var(--warning)}
+.evaluationMetric.tone-danger .evaluationMetricValue,.executionMetric.tone-danger .executionMetricValue{color:var(--danger)}
+.evaluationMetric.tone-info .evaluationMetricValue,.executionMetric.tone-info .executionMetricValue{color:var(--info)}
+.evaluationFinalStatus{display:grid;gap:8px;padding:10px;border:1px solid var(--border);border-radius:14px;background:var(--nested-surface-soft)}
+.evaluationEmptyState{padding:18px;border-style:dashed;border-radius:16px;box-shadow:none;color:var(--muted);text-align:center}
+.apontamentoEntryCard{padding:10px 12px;border-radius:16px}
+.apontamentoEditorSurface{padding:14px;border-radius:18px;background:var(--nested-surface-soft);box-shadow:none}
+.launchEntryCard{padding:10px 12px;border-radius:14px}
+.resourceExecutionCard{
+  --card-accent:var(--info);
+  border-left:3px solid var(--card-accent);
+  border-radius:16px;
+  cursor:pointer;
+  transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;
+}
+.resourceExecutionCard.tone-ok{--card-accent:var(--success)}
+.resourceExecutionCard.tone-warn{--card-accent:var(--warning)}
+.resourceExecutionCard.tone-danger{--card-accent:var(--danger)}
+.resourceExecutionCard:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--card-accent) 48%,var(--border));box-shadow:0 14px 34px rgba(0,0,0,.14)}
+.resourceExecutionCard:focus-visible{outline:3px solid color-mix(in srgb,var(--card-accent) 32%,transparent);outline-offset:2px}
+.resourceBarTrack{overflow:hidden;border:1px solid var(--border);border-radius:999px;background:var(--nested-surface-soft)}
+.resourceBarFill{height:100%;border-radius:999px}
+.resourceBarFill.planned{background:linear-gradient(90deg,var(--planned-bar-start),var(--planned-bar-end))}
+.resourceBarFill.executed{background:linear-gradient(90deg,var(--executed-bar-start),var(--executed-bar-end))}
+html[data-theme="dark"] .pill.warn{border-color:color-mix(in srgb,var(--warning) 48%,var(--border));color:var(--warning)}
+html[data-theme="dark"] .pill.info{border-color:var(--info-border);background:var(--info-soft);color:var(--info)}
+html[data-theme="dark"] .warn{color:var(--warning)}
 
 html[data-theme="dark"] svg text{fill:var(--text)}
 html[data-theme="dark"] svg rect[fill="#ffffff"],html[data-theme="dark"] svg rect[fill="#FFFFFF"]{fill:var(--surface)}

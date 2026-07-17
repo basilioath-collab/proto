@@ -5875,7 +5875,7 @@ export function bootstrapOrizon(): void {
       return box;
     }
     for (const row of rows) {
-      box.appendChild(el('div', { style:'border:1px solid var(--border);border-radius:16px;padding:12px;background:#fff' }, [
+      box.appendChild(el('div', { class:'apontamentoEntryCard', style:'padding:12px' }, [
         el('div', { style:'display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap' }, [
           el('div', {}, [el('div', { style:'font-weight:950' }, [row.title || 'Ação']), el('div', { class:'tiny muted' }, [`Data/hora da ação: ${auditDateTimeBR(row.timestamp)}${row.actor ? ' • ' + row.actor : ''}`])]),
         ]),
@@ -6380,7 +6380,7 @@ export function bootstrapOrizon(): void {
         for (const a of items) {
           const created = a.created_at ? new Date(Number(a.created_at)).toLocaleString('pt-BR') : '-';
           const updated = a.updated_at && Number(a.updated_at) !== Number(a.created_at) ? ` é alterado em ${new Date(Number(a.updated_at)).toLocaleString('pt-BR')}` : '';
-          const card = el('div', { style:'border:1px solid var(--border);border-radius:16px;padding:10px 12px;background:#fff;box-shadow:0 8px 22px rgba(15,23,42,.04)' }, [
+          const card = el('div', { class:'apontamentoEntryCard' }, [
             el('div', { style:'display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap' }, [
               el('div', { style:'display:flex;align-items:center;gap:8px;flex-wrap:wrap' }, [
                 badge(a.etapa),
@@ -6464,7 +6464,7 @@ export function bootstrapOrizon(): void {
     cancelAptBtn = button('Cancelar edição', '', () => { resetApontamentoForm(); });
     cancelAptBtn.style.display = 'none';
 
-    const apontamentosBox = el('div', { class:'field', style:'border:1px solid var(--border);border-radius:18px;padding:14px;background:#fff' }, [
+    const apontamentosBox = el('div', { class:'field apontamentoEditorSurface' }, [
       el('label', {}, ['Etapas do projeto / apontamento real']),
       el('div', { class:'tiny muted', style:'margin-bottom:10px' }, ['Registre horas reais gastas por documento/atividade. Não soma novamente na capacidade planejada.']),
       el('div', { class:'row' }, [
@@ -6765,7 +6765,7 @@ export function bootstrapOrizon(): void {
           flags.early ? el('span', { class:'pill warn', title:'Apontamento antes da data de início planejada.' }, ['Execução antecipada']) : null,
           flags.late ? el('span', { class:'pill bad', title:'Apontamento depois do prazo atual da demanda.' }, ['Fora do prazo']) : null,
         ].filter(Boolean);
-        list.appendChild(el('div', { style:'border:1px solid var(--border);border-radius:14px;padding:10px 12px;background:#fff' }, [
+        list.appendChild(el('div', { class:'apontamentoEntryCard', style:'border-radius:14px' }, [
           el('div', { style:'display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap' }, [
             el('div', {}, [
               el('div', { style:'font-weight:950' }, [`${formatDateBR(a.data)} - ${a.etapa}`]),
@@ -6872,7 +6872,7 @@ export function bootstrapOrizon(): void {
         ]),
         el('div', { class:'tiny muted', style:'margin-top:4px' }, ['Apontamentos antes do início planejado são permitidos e contabilizados como execução antecipada.'])
       ]),
-      el('div', { class:'field', style:'border:1px solid var(--border);border-radius:18px;padding:14px;background:#fff' }, [
+      el('div', { class:'field apontamentoEditorSurface' }, [
         el('label', {}, ['Etapas do projeto / apontamento real']),
         el('div', { class:'tiny muted' }, ['Registre horas reais gastas por documento/atividade. Nao altera a capacidade planejada.'])
       ]),
@@ -8535,10 +8535,10 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
     const overallPct = totals.planned > 0 ? (totals.real / totals.planned) * 100 : 0;
 
     const miniMetric = (label, value, hint='', tone='') => el('div', {
-      style:`border:1px solid var(--border);border-radius:14px;padding:10px;background:${tone==='ok'?'var(--success-soft)':tone==='warn'?'var(--warning-soft)':tone==='danger'?'var(--danger-soft)':'var(--surface)'}`
+      class:`evaluationMetric tone-${tone || 'neutral'}`
     }, [
       el('div', { class:'tiny muted' }, [label]),
-      el('div', { class:'mono', style:'font-weight:950;font-size:18px;line-height:1.15' }, [value]),
+      el('div', { class:'mono evaluationMetricValue' }, [value]),
       el('div', { class:'tiny muted', style:'margin-top:3px' }, [hint])
     ]);
 
@@ -8552,7 +8552,7 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
       const d = p.demand;
       const m = p.metrics;
       const finalInfo = p.finalStatusInfo || demandFinalStatusInfo(d);
-      const statusTone = p.health.tone === 'danger' ? 'bad' : (p.health.tone === 'warn' ? 'warn' : (p.health.tone === 'ok' ? 'ok' : 'info'));
+      const statusTone = p.health.tone === 'danger' ? 'bad' : (p.health.tone === 'warn' ? 'warn' : (p.health.tone === 'ok' ? 'good' : 'info'));
       const balanceText = p.remainingBalance >= 0
         ? `${hoursText(p.remainingBalance)}`
         : `${hoursText(Math.abs(p.remainingBalance))}`;
@@ -8565,9 +8565,7 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
         : '-';
       const wc = p.windowClassification || {};
       const finalStatusTone = finalInfo.status === 'Cancelada' ? 'bad' : 'good';
-      const finalStatusBlock = finalInfo.isFinal ? el('div', {
-        style:'border:1px solid var(--border);border-radius:14px;padding:10px;background:var(--surface);display:grid;gap:8px'
-      }, [
+      const finalStatusBlock = finalInfo.isFinal ? el('div', { class:'evaluationFinalStatus' }, [
         el('div', { class:'row', style:'gap:8px;justify-content:space-between;align-items:center' }, [
           el('span', { class:`pill ${finalStatusTone}` }, [finalInfo.status]),
           button(finalInfo.buttonLabel, finalInfo.status === 'Cancelada' ? 'danger small' : 'primary small', () => openDemandFinalStatusDetailsModal(d))
@@ -8585,9 +8583,7 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
         wc.hasLateExecution ? el('span', { class:'pill bad', title:'Há apontamentos depois do prazo atual da demanda.' }, [`Execução fora do prazo: ${wc.lateCount} apontamento(s) / ${fmtHours(wc.lateHours)}h`]) : null,
       ].filter(Boolean);
 
-      return el('div', {
-        style:'border:1px solid var(--border);border-radius:18px;padding:14px;background:#fff;box-shadow:0 10px 26px rgba(15,23,42,.06);display:flex;flex-direction:column;gap:12px;min-height:340px'
-      }, [
+      return el('div', { class:`evaluationProjectCard tone-${p.health.tone || 'info'}` }, [
         el('div', { class:'grid', style:'gap:8px;min-width:0' }, [
           el('div', { style:'min-width:0' }, [
             el('div', { style:'font-weight:950;font-size:15px;line-height:1.25;word-break:break-word' }, [d.titulo || d.id || 'Demanda']),
@@ -8691,7 +8687,7 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
             onLast: () => { uiPagination.evaluationPage = totalPages; render(); },
           })
         ])
-      : el('div', { style:'padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:16px;background:#fff' }, ['Nenhuma demanda encontrada para avaliação.']);
+      : el('div', { class:'evaluationEmptyState' }, ['Nenhuma demanda encontrada para avaliação.']);
 
     return el('div', { class:'grid', style:'gap:14px' }, [
       card('Apontamentos', null, el('div', { class:'grid', style:'gap:12px' }, [
@@ -9238,10 +9234,10 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
     totalsWithInternal.extra = Math.max(0, totalsWithInternal.real - totalsWithInternal.planned);
     const pct = (v) => `${Math.max(0, Number(v || 0)).toFixed(0)}%`;
     const metric = (label, value, hint='', tone='') => el('div', {
-      style:`border:1px solid var(--border);border-radius:14px;padding:12px;background:${tone === 'warn' ? 'var(--warning-soft)' : tone === 'danger' ? 'var(--danger-soft)' : 'var(--surface)'}`
+      class:`executionMetric tone-${tone || 'neutral'}`
     }, [
       el('div', { class:'tiny muted', style:'text-transform:uppercase;font-weight:950;letter-spacing:.08em' }, [label]),
-      el('div', { class:'mono', style:'font-size:20px;font-weight:950;margin-top:6px' }, [value]),
+      el('div', { class:'mono executionMetricValue' }, [value]),
       hint ? el('div', { class:'tiny muted', style:'margin-top:3px' }, [hint]) : null
     ].filter(Boolean));
 
@@ -9251,17 +9247,19 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
           const plannedW = Math.max(4, Math.round((row.planned / maxHours) * 100));
           const realW = Math.max(4, Math.round((row.real / maxHours) * 100));
           const adherence = row.planned > 0 ? (row.real / row.planned) * 100 : (row.real > 0 ? 100 : 0);
-          const tone = row.planned <= 0 ? 'info' : adherence > 130 ? 'bad' : adherence < 80 ? 'warn' : 'info';
+          const cardTone = row.planned <= 0 ? 'info' : adherence > 130 ? 'danger' : adherence < 80 ? 'warn' : 'ok';
+          const tone = cardTone === 'danger' ? 'bad' : cardTone === 'ok' ? 'good' : cardTone;
           const workedItems = row.items
             .filter(i => i.type !== 'planned')
             .sort((a,b) => Number(b.hours || 0) - Number(a.hours || 0))
             .slice(0, 4);
           const resourceName = row.resource?.nome || row.resource?.name || row.resource?.id || 'Recurso';
           return el('div', {
+            class:`resourceExecutionCard tone-${cardTone}`,
             role:'button',
             tabindex:'0',
             title:'Abrir lançamentos do recurso',
-            style:'border:1px solid var(--border);border-radius:16px;padding:12px;background:#fff;display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:12px;align-items:center;cursor:pointer;transition:border-color .14s ease,box-shadow .14s ease',
+            style:'padding:12px;display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:12px;align-items:center',
             onclick:() => openDailyResourceLaunchesModal(row, rangeIsSingleDay ? dailyRange.start : dailyRange.start, dailyRange.end),
             onkeydown:(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openDailyResourceLaunchesModal(row, rangeIsSingleDay ? dailyRange.start : dailyRange.start, dailyRange.end); } }
           }, [
@@ -9273,15 +9271,15 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
             el('div', { style:'display:grid;gap:8px' }, [
               el('div', { style:'display:grid;grid-template-columns:74px 1fr 56px;gap:8px;align-items:center' }, [
                 el('div', { class:'tiny muted' }, ['Planejado']),
-                el('div', { style:'height:16px;border-radius:999px;background:var(--surface);overflow:hidden;border:1px solid var(--border)' }, [
-                  el('div', { title:`Planejado: ${fmtHours(row.planned)}h`, style:`width:${plannedW}%;height:100%;border-radius:999px;background:linear-gradient(90deg,#E5E7EB,#050505)` })
+                el('div', { class:'resourceBarTrack', style:'height:16px' }, [
+                  el('div', { class:'resourceBarFill planned', title:`Planejado: ${fmtHours(row.planned)}h`, style:`width:${plannedW}%` })
                 ]),
                 el('div', { class:'mono tiny', style:'text-align:right' }, [`${fmtHours(row.planned)}h`])
               ]),
               el('div', { style:'display:grid;grid-template-columns:74px 1fr 56px;gap:8px;align-items:center' }, [
                 el('div', { class:'tiny muted' }, ['Executado']),
-                el('div', { style:'height:16px;border-radius:999px;background:var(--surface);overflow:hidden;border:1px solid var(--border)' }, [
-                  el('div', { title:`Executado: ${fmtHours(row.real)}h`, style:`width:${realW}%;height:100%;border-radius:999px;background:linear-gradient(90deg,#BBF7D0,#15803D)` })
+                el('div', { class:'resourceBarTrack', style:'height:16px' }, [
+                  el('div', { class:'resourceBarFill executed', title:`Executado: ${fmtHours(row.real)}h`, style:`width:${realW}%` })
                 ]),
                 el('div', { class:'mono tiny', style:'text-align:right' }, [`${fmtHours(row.real)}h`])
               ]),
@@ -11319,30 +11317,33 @@ Dias 0h: ${m.daysZero} - Dias excedidos: ${m.daysOver}`;
         const plannedW = Math.max(4, Math.round((Number(row.planned || 0) / maxHours) * 100));
         const realW = Math.max(4, Math.round((Number(row.real || 0) / maxHours) * 100));
         const adherence = row.planned > 0 ? (row.real / row.planned) * 100 : (row.real > 0 ? 100 : 0);
+        const cardTone = row.planned <= 0 ? 'info' : adherence > 130 ? 'danger' : adherence < 80 ? 'warn' : 'ok';
+        const pillTone = cardTone === 'danger' ? 'bad' : cardTone === 'ok' ? 'good' : cardTone;
         const resourceName = row.resource?.nome || row.resource?.name || row.resource?.id || 'Recurso';
         return el('div', {
+          class:`resourceExecutionCard tone-${cardTone}`,
           role:'button',
           tabindex:'0',
           title:'Abrir lançamentos do recurso',
-          style:'border:1px solid var(--border);border-radius:14px;padding:10px;background:#fff;cursor:pointer;transition:border-color .14s ease,box-shadow .14s ease',
+          style:'padding:10px;border-radius:14px',
           onclick:() => openDailyResourceLaunchesModal(row, launchExecutionDate),
           onkeydown:(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openDailyResourceLaunchesModal(row, launchExecutionDate); } }
         }, [
           el('div', { style:'display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap' }, [
             el('div', { style:'font-weight:950;text-align:left;color:var(--primary)' }, [resourceName]),
-            el('span', { class:`pill ${adherence < 80 ? 'warn' : adherence > 130 ? 'bad' : 'info'}` }, [launchExecutionPct(adherence)])
+            el('span', { class:`pill ${pillTone}` }, [launchExecutionPct(adherence)])
           ]),
           el('div', { style:'display:grid;grid-template-columns:74px 1fr 48px;gap:8px;align-items:center;margin-top:8px' }, [
             el('div', { class:'tiny muted' }, ['Meta']),
-            el('div', { style:'height:12px;border-radius:999px;background:var(--surface);overflow:hidden;border:1px solid var(--border)' }, [
-              el('div', { title:`Meta: ${fmtHours(row.planned)}h`, style:`width:${plannedW}%;height:100%;border-radius:999px;background:linear-gradient(90deg,#E5E7EB,#050505)` })
+            el('div', { class:'resourceBarTrack', style:'height:12px' }, [
+              el('div', { class:'resourceBarFill planned', title:`Meta: ${fmtHours(row.planned)}h`, style:`width:${plannedW}%` })
             ]),
             el('div', { class:'mono tiny', style:'text-align:right' }, [`${fmtHours(row.planned)}h`])
           ]),
           el('div', { style:'display:grid;grid-template-columns:74px 1fr 48px;gap:8px;align-items:center;margin-top:6px' }, [
             el('div', { class:'tiny muted' }, ['Exec.']),
-            el('div', { style:'height:12px;border-radius:999px;background:var(--surface);overflow:hidden;border:1px solid var(--border)' }, [
-              el('div', { title:`Executado: ${fmtHours(row.real)}h`, style:`width:${realW}%;height:100%;border-radius:999px;background:linear-gradient(90deg,#BBF7D0,#15803D)` })
+            el('div', { class:'resourceBarTrack', style:'height:12px' }, [
+              el('div', { class:'resourceBarFill executed', title:`Executado: ${fmtHours(row.real)}h`, style:`width:${realW}%` })
             ]),
             el('div', { class:'mono tiny', style:'text-align:right' }, [`${fmtHours(row.real)}h`])
           ]),
@@ -11485,7 +11486,7 @@ Dias 0h: ${m.daysZero} - Dias excedidos: ${m.daysOver}`;
         el('div', { class:'tiny muted' }, [`Histórico recente: ${selectedApontamentos.length} apontamento(s) / ${fmtHours((selectedMetrics?.realHours || 0))}h.`]),
         selectedApontamentos.length
           ? el('div', { class:'grid', style:'gap:10px' }, [
-            el('div', { style:'display:flex;flex-wrap:wrap;gap:8px;align-items:stretch' }, launchAptPageItems.map(a => el('div', { style:`flex:0 0 clamp(280px, calc(20% - 8px), 360px);max-width:100%;box-sizing:border-box;border:1px solid ${String(a.id) === String(editingLaunchApontamentoId) ? 'var(--primary-light)' : 'var(--border)'};border-radius:14px;padding:10px 12px;background:#fff;box-shadow:0 8px 18px rgba(15,23,42,.04)` }, [
+            el('div', { style:'display:flex;flex-wrap:wrap;gap:8px;align-items:stretch' }, launchAptPageItems.map(a => el('div', { class:'launchEntryCard', style:`flex:0 0 clamp(280px, calc(20% - 8px), 360px);max-width:100%;box-sizing:border-box;border-color:${String(a.id) === String(editingLaunchApontamentoId) ? 'var(--primary-light)' : 'var(--border)'}` }, [
               el('div', { style:'display:flex;justify-content:space-between;gap:8px;align-items:flex-start' }, [
                 el('div', { style:'font-weight:950' }, [`${formatDateBR(a.data)} - ${a.etapa} - ${fmtHours(a.horas || 0)}h`]),
                 el('div', { class:'row', style:'gap:6px;flex-wrap:nowrap' }, [
