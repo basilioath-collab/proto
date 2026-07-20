@@ -302,6 +302,15 @@ function OrizonDialogs() {
 }
 
 export function OrizonApp() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setSidebarCollapsed(localStorage.getItem("orizon-sidebar-collapsed") === "1");
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
   useEffect(() => {
     if (window.__orizonBootstrapped) return;
     window.__orizonBootstrapped = true;
@@ -314,13 +323,31 @@ export function OrizonApp() {
     }
   }, []);
 
+  const toggleSidebar = () => {
+    setSidebarCollapsed((current) => {
+      const next = !current;
+      localStorage.setItem("orizon-sidebar-collapsed", next ? "1" : "0");
+      return next;
+    });
+  };
+
   return (
     <div id="orizon-root">
-      <div className="appShell">
+      <div className={`appShell${sidebarCollapsed ? " sidebarCollapsed" : ""}`}>
         <aside className="sidebar">
           <div className="brandWrap">
             <div aria-hidden="true" className="brandGlyph"><span /></div>
             <div className="brandLockup"><strong>ORIZON</strong><span>Planning workspace</span></div>
+            <button
+              aria-expanded={!sidebarCollapsed}
+              aria-label={sidebarCollapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
+              className="sidebarToggle"
+              onClick={toggleSidebar}
+              title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
+              type="button"
+            >
+              <Icon name="chevron" size={16} />
+            </button>
           </div>
           <div className="navCaption">Navegação</div>
           <nav aria-label="Navegação principal" id="tabs" />

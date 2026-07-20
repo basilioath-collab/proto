@@ -28,6 +28,8 @@ describe("OrizonApp", () => {
     for (const id of criticalElementIds) expect(html).toContain(`id="${id}"`);
     expect(html).toContain("Planning workspace");
     expect(html).toContain("Alternar modo claro ou escuro");
+    expect(html).toContain('aria-label="Recolher menu lateral"');
+    expect(html).toContain('aria-expanded="true"');
     expect(html).not.toContain("app.js");
   });
 
