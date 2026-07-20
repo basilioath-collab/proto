@@ -16,6 +16,7 @@ type IconName =
   | "chevron"
   | "database"
   | "moon"
+  | "panelLeft"
   | "search"
   | "sun";
 
@@ -29,6 +30,7 @@ const iconPaths: Record<IconName, React.ReactNode> = {
     </>
   ),
   moon: <path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14Z" />,
+  panelLeft: <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16M13 9l3 3-3 3" /></>,
   search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>,
   sun: (
     <>
@@ -346,7 +348,7 @@ export function OrizonApp() {
               title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
               type="button"
             >
-              <Icon name="chevron" size={16} />
+              <Icon name="panelLeft" size={18} />
             </button>
           </div>
           <div className="navCaption">Navegação</div>
@@ -357,7 +359,7 @@ export function OrizonApp() {
               <span className="eventFolderCopy"><small>Base de eventos</small><span className="eventFolderText">Conectar pasta</span></span>
               <Icon name="chevron" size={15} />
             </button>
-            <div className="appVersion"><span /> ORIZON v0.3</div>
+            <div className="appVersion"><span /> ORIZON v0.4</div>
           </div>
         </aside>
 
@@ -389,6 +391,7 @@ export function OrizonApp() {
           <main className="workspaceContent" id="app">
             <div className="appLoading"><span className="loadingSpinner" /><div><strong>Preparando seu workspace</strong><span>Carregando planejamento e indicadores...</span></div></div>
           </main>
+          <footer className="workspaceFooter">© 2026 Arthur Basílio. Todos os direitos reservados.</footer>
         </section>
       </div>
       <OrizonDialogs />

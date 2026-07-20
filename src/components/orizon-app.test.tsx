@@ -30,6 +30,8 @@ describe("OrizonApp", () => {
     expect(html).toContain("Alternar modo claro ou escuro");
     expect(html).toContain('aria-label="Recolher menu lateral"');
     expect(html).toContain('aria-expanded="true"');
+    expect(html).toContain("ORIZON v0.4");
+    expect(html).toContain("© 2026 Arthur Basílio. Todos os direitos reservados.");
     expect(html).not.toContain("app.js");
   });
 
