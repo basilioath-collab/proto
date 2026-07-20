@@ -24,13 +24,6 @@ export function bootstrapOrizon(): void {
 
   const qs = (sel, el=document) => el.querySelector(sel);
   const qsa = (sel, el=document) => [...el.querySelectorAll(sel)];
-  const alphabeticalPtBr = (a, b) => String(a || '').localeCompare(String(b || ''), 'pt-BR', {
-    sensitivity: 'base',
-    numeric: true,
-  });
-  const alphabeticalResources = (items=state.resources || []) => [...items].sort((a,b) =>
-    alphabeticalPtBr(a?.nome || a?.name || a?.id, b?.nome || b?.name || b?.id)
-  );
 
   // Keep the background blur consistent whenever any <dialog> is open.
   const syncModalBlur = () => {
@@ -62,7 +55,7 @@ export function bootstrapOrizon(): void {
     if (!sel) return;
     sel.innerHTML = '';
     sel.appendChild(el('option', { value:'__ALL__' }, ['Todos os recursos']));
-    for (const r of alphabeticalResources()) sel.appendChild(el('option', { value:r.id }, [r.nome]));
+    for (const r of (state.resources||[])) sel.appendChild(el('option', { value:r.id }, [r.nome]));
   };
 
   const openHeModal = (prefill={}) => {
@@ -1796,7 +1789,7 @@ export function bootstrapOrizon(): void {
   // ----------------------
   // Status (padrão)
   // ----------------------
-  const STATUS = ['Em andamento','Atrasada','Concluída','Cancelada','Mapeada','Congelada'].sort(alphabeticalPtBr);
+  const STATUS = ['Em andamento','Atrasada','Concluída','Cancelada','Mapeada','Congelada'];
   const STATUS_COUNTS_IN_ALLOCATION = new Set(['Em andamento','Atrasada']);
 
   const normalizeStatus = (s) => {
@@ -1834,7 +1827,7 @@ export function bootstrapOrizon(): void {
   const PROJECT_STEP_OPTIONS = [
     'ARI', 'PV', 'ANR', 'QI', 'QO', 'QP', 'RP', 'ERU', 'URS', 'RTM',
     'Revisão', 'Reunião', 'Execução de Teste', 'Correção', 'Evidência', 'Outro'
-  ].sort(alphabeticalPtBr);
+  ];
 
   const normalizeProjectStep = (value) => {
     const raw = String(value || '').trim();
@@ -8113,7 +8106,7 @@ function buildConsolidatedYearSeries(year) {
       const resSel = el('select');
       resSel.appendChild(el('option', { value:'' }, ['Todos os recursos']));
       resSel.appendChild(el('option', { value:'__NONE__' }, ['Sem responsável (Mapeada)']));
-      for (const r of alphabeticalResources()) resSel.appendChild(el('option', { value:r.id }, [r.nome]));
+      for (const r of state.resources) resSel.appendChild(el('option', { value:r.id }, [r.nome]));
       resSel.value = uiFilters.demandResourceId || '';
       resSel.addEventListener('change', () => { uiFilters.demandResourceId = resSel.value; uiPagination.demandsPage=1; render(); });
 
@@ -9416,7 +9409,7 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
       ])]));
 
       const tb = el('tbody');
-      const allRes = alphabeticalResources();
+      const allRes = newestFirst(state.resources||[]);
       const total = allRes.length;
       const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
       uiPagination.resourcesPage = Math.min(Math.max(1, uiPagination.resourcesPage), totalPages);
@@ -9924,7 +9917,7 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
       const resSel = el('select');
       resSel.appendChild(el('option', { value:'' }, ['Todos os recursos']));
       resSel.appendChild(el('option', { value:'__NONE__' }, ['Sem responsável (Mapeada)']));
-      for (const r of alphabeticalResources()) resSel.appendChild(el('option', { value:r.id }, [r.nome]));
+      for (const r of state.resources) resSel.appendChild(el('option', { value:r.id }, [r.nome]));
       resSel.value = uiFilters.demandResourceId || '';
       resSel.addEventListener('change', () => { uiFilters.demandResourceId = resSel.value; uiPagination.demandsPage=1; render(); });
 
@@ -9972,9 +9965,7 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
       ])]));
       const tb = el('tbody');
 
-      const orderedDemands = [...filteredDemands].sort((a,b) =>
-        alphabeticalPtBr(a?.titulo || a?.title || a?.id, b?.titulo || b?.title || b?.id)
-      );
+      const orderedDemands = newestFirst(filteredDemands);
       const displayDemands = groupDemandsForDisplay(orderedDemands);
       const total = displayDemands.length;
       const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -10106,7 +10097,7 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
     const form = (() => {
       const res = el('select');
       res.appendChild(el('option', { value:'' }, ['Selecione...']));
-      for (const r of alphabeticalResources()) res.appendChild(el('option', { value:r.id }, [r.nome]));
+      for (const r of state.resources) res.appendChild(el('option', { value:r.id }, [r.nome]));
       const dateStart = el('input', { type:'date', min:`${MIN_APP_YEAR}-01-01`, max:`${MAX_APP_YEAR}-12-31` });
       const dateEnd = el('input', { type:'date', min:`${MIN_APP_YEAR}-01-01`, max:`${MAX_APP_YEAR}-12-31` });
       const tipo = el('select', {}, [
@@ -10731,14 +10722,10 @@ const svg = buildCapacityVsPlannedSvg({ title: 'Ocupação Consolidada - Ano (de
       monthsInp.addEventListener('change', () => { wh.months = clampMonths(monthsInp.value); render(); });
 
       const metricSel = el('select');
-      for (const metric of [
-        { value:'occupation', label:'Ocupação' },
-        { value:'capacity_free', label:'Capacidade livre' },
-        { value:'bottleneck', label:'Risco de gargalo' },
-        { value:'idleness', label:'Ociosidade' },
-      ].sort((a,b) => alphabeticalPtBr(a.label, b.label))) {
-        metricSel.appendChild(el('option', { value:metric.value }, [metric.label]));
-      }
+      metricSel.appendChild(el('option', { value:'occupation' }, ['Ocupação']));
+      metricSel.appendChild(el('option', { value:'capacity_free' }, ['Capacidade livre']));
+      metricSel.appendChild(el('option', { value:'bottleneck' }, ['Risco de gargalo']));
+      metricSel.appendChild(el('option', { value:'idleness' }, ['Ociosidade']));
       metricSel.value = wh.metric || wh.view || 'occupation';
       metricSel.addEventListener('change', () => { wh.metric = metricSel.value; wh.view = metricSel.value; render(); });
 
@@ -10956,7 +10943,7 @@ Dias 0h: ${m.daysZero} - Dias excedidos: ${m.daysOver}`;
 
     const resSel = el('select');
     resSel.appendChild(el('option', { value:'__ALL__' }, ['Todos os recursos']));
-    for (const r of alphabeticalResources()) resSel.appendChild(el('option', { value:r.id }, [r.nome]));
+    for (const r of (state.resources||[])) resSel.appendChild(el('option', { value:r.id }, [r.nome]));
 
     const dateInp = el('input', { type:'date' });
     dateInp.value = formatDate(new Date());
@@ -11067,7 +11054,7 @@ Dias 0h: ${m.daysZero} - Dias excedidos: ${m.daysOver}`;
       selectEl.value = v;
     };
 
-    const type = el('select', {}, [
+    const internalActivityTypeOptions = [
       el('option', { value:'Reunião administrativa' }, ['Reunião administrativa']),
       el('option', { value:'Treinamento' }, ['Treinamento']),
       el('option', { value:'Leitura/Estudo' }, ['Leitura/Estudo']),
@@ -11120,7 +11107,13 @@ Dias 0h: ${m.daysZero} - Dias excedidos: ${m.daysOver}`;
       el('option', { value:'Reunião sobre Melhorias' }, ['Reunião sobre Melhorias']),
       el('option', { value:'RM' }, ['RM']),
       el('option', { value:'CAP - Ciclo de Alta Performance' }, ['CAP - Ciclo de Alta Performance']),
-    ]);
+    ].filter((option, index, options) =>
+      options.findIndex(candidate => String(candidate.value) === String(option.value)) === index
+    ).sort((a,b) => String(a.textContent || '').localeCompare(String(b.textContent || ''), 'pt-BR', {
+      sensitivity:'base',
+      numeric:true,
+    }));
+    const type = el('select', {}, internalActivityTypeOptions);
     const title = el('input', { placeholder:'Título da atividade', value: editingActivity?.titulo || '' });
     const ini = el('input', { type:'date', value: editingActivity?.data_inicio || todayISO() });
     const fim = el('input', { type:'date', value: editingActivity?.data_fim || todayISO() });
@@ -12430,15 +12423,15 @@ return el('div', { class:'grid' }, [
   const TABS = [
     { id:'dashboard', label:'Visão Geral', icon:'📊' },
     { id:'evaluation', label:'Apontamentos', icon:'📈' },
-    { id:'calendar', label:'Bloqueio de Janela', icon:'📅' },
     { id:'demands', label:'Demandas', icon:'📋' },
-    { id:'dailyExecution', label:'Execução diária', icon:'📆' },
+    { id:'resources', label:'Recursos', icon:'👥' },
+    { id:'calendar', label:'Bloqueio de Janela', icon:'📅' },
     { id:'he', label:'Horas Extras (HE)', icon:'⏱' },
     { id:'windows', label:'Janelas Livres', icon:'🔎' },
     { id:'internal', label:'Lançamentos', icon:'✍️' },
-    { id:'resources', label:'Recursos', icon:'👥' },
+    { id:'dailyExecution', label:'Execução diária', icon:'📆' },
     { id:'consolidation', label:'Sincronização de BD', icon:'📦' },
-  ].sort((a,b) => alphabeticalPtBr(a.label, b.label));
+  ];
 
   const renderTabs = () => {
     const nav = qs('#tabs');
@@ -12446,8 +12439,6 @@ return el('div', { class:'grid' }, [
     for (const t of TABS) {
       nav.appendChild(el('button', {
         class: (activeTab===t.id ? 'active' : ''),
-        title: t.label,
-        'aria-current': activeTab===t.id ? 'page' : null,
         onclick: () => { activeTab = t.id; render(); }
       }, [el('span', {}, [t.icon]), t.label]));
     }
