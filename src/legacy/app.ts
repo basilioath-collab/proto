@@ -11054,7 +11054,7 @@ Dias 0h: ${m.daysZero} - Dias excedidos: ${m.daysOver}`;
       selectEl.value = v;
     };
 
-    const type = el('select', {}, [
+    const internalActivityTypeOptions = [
       el('option', { value:'Reunião administrativa' }, ['Reunião administrativa']),
       el('option', { value:'Treinamento' }, ['Treinamento']),
       el('option', { value:'Leitura/Estudo' }, ['Leitura/Estudo']),
@@ -11107,7 +11107,13 @@ Dias 0h: ${m.daysZero} - Dias excedidos: ${m.daysOver}`;
       el('option', { value:'Reunião sobre Melhorias' }, ['Reunião sobre Melhorias']),
       el('option', { value:'RM' }, ['RM']),
       el('option', { value:'CAP - Ciclo de Alta Performance' }, ['CAP - Ciclo de Alta Performance']),
-    ]);
+    ].filter((option, index, options) =>
+      options.findIndex(candidate => String(candidate.value) === String(option.value)) === index
+    ).sort((a,b) => String(a.textContent || '').localeCompare(String(b.textContent || ''), 'pt-BR', {
+      sensitivity:'base',
+      numeric:true,
+    }));
+    const type = el('select', {}, internalActivityTypeOptions);
     const title = el('input', { placeholder:'Título da atividade', value: editingActivity?.titulo || '' });
     const ini = el('input', { type:'date', value: editingActivity?.data_inicio || todayISO() });
     const fim = el('input', { type:'date', value: editingActivity?.data_fim || todayISO() });
