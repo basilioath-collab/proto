@@ -338,8 +338,12 @@ export function OrizonApp() {
       <div className={`appShell${sidebarCollapsed ? " sidebarCollapsed" : ""}`}>
         <aside className="sidebar">
           <div className="brandWrap">
-            <div aria-hidden="true" className="brandGlyph"><span /></div>
-            <div className="brandLockup"><strong>ORIZON</strong><span>Planning workspace</span></div>
+            {!sidebarCollapsed && (
+              <div className="brandIdentity">
+                <div aria-hidden="true" className="brandGlyph"><span /></div>
+                <div className="brandLockup"><strong>ORIZON</strong><span>Planning workspace</span></div>
+              </div>
+            )}
             <button
               aria-expanded={!sidebarCollapsed}
               aria-label={sidebarCollapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
