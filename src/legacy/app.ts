@@ -4600,23 +4600,30 @@ export function bootstrapOrizon(): void {
     let archivedEventCount = 0;
     let activeFilesTouched = 0;
     const archivedFiles = [];
+    const activeEventFiles = [];
 
     for await (const [name, handle] of capviewEventsDirHandle.entries()) {
       if (!handle || handle.kind !== 'file') continue;
       if (!String(name || '').toLowerCase().endsWith('.json')) continue;
       const currentDoc = await readEventFileDocument(handle);
+      if (currentDoc.invalid) throw new Error(`${name}: JSON inválido; o arquivo foi preservado e precisa ser corrigido antes da consolidação.`);
       const current = currentDoc.events || [];
-      const archived = current.filter(ev => ev && ev.id && consolidatedIds.has(String(ev.id)));
-      if (!archived.length) continue;
-      const remaining = current.filter(ev => !ev || !ev.id || !consolidatedIds.has(String(ev.id)));
+      if (!current.length) continue;
+      const notConsolidated = current.filter(ev => !ev?.id || !consolidatedIds.has(String(ev.id)));
+      if (notConsolidated.length) {
+        throw new Error(`${name}: ${notConsolidated.length} evento(s) não foram confirmados no SNAP GERAL; o arquivo foi preservado.`);
+      }
+      activeEventFiles.push({ name, handle, currentDoc, current });
+    }
+
+    for (const { name, handle, currentDoc, current } of activeEventFiles) {
       const archiveHandle = await archiveDir.getFileHandle(name, { create:true });
       const archiveCurrent = await readEventArrayFromHandle(archiveHandle);
-      await writeJsonToFileHandle(archiveHandle, mergeEventListsUnique(archiveCurrent, archived));
-      await writeEventArrayToHandle(handle, remaining, '', '', { currentDoc });
+      await writeJsonToFileHandle(archiveHandle, mergeEventListsUnique(archiveCurrent, current));
+      await writeEventArrayToHandle(handle, [], '', '', { currentDoc });
       const verifiedRemaining = await readEventArrayFromHandle(handle);
-      const uncleared = verifiedRemaining.filter(ev => ev && ev.id && consolidatedIds.has(String(ev.id)));
-      if (uncleared.length) throw new Error(`${name}: ${uncleared.length} evento(s) permaneceram no arquivo ativo após a limpeza.`);
-      archivedEventCount += archived.length;
+      if (verifiedRemaining.length) throw new Error(`${name}: ${verifiedRemaining.length} evento(s) permaneceram no arquivo ativo após a limpeza.`);
+      archivedEventCount += current.length;
       activeFilesTouched += 1;
       archivedFiles.push(String(name));
     }
