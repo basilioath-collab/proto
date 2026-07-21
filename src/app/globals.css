@@ -1025,10 +1025,11 @@ button{-webkit-tap-highlight-color:transparent}
 .appShell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100dvh;background:var(--bg);transition:grid-template-columns .2s ease}
 .appShell.sidebarCollapsed{grid-template-columns:80px minmax(0,1fr)}
 .sidebar{position:sticky;top:0;z-index:70;display:flex;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;min-width:0;min-height:0;flex-direction:column;overflow:hidden;background:var(--sidebar);border-right:1px solid var(--sidebar-border);color:#fff}
-.sidebar .brandWrap{position:relative;display:flex;flex:0 0 auto;gap:12px;align-items:center;min-height:90px;padding:20px 20px 17px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar .brandWrap{position:relative;display:flex;flex:0 0 auto;gap:12px;align-items:center;min-height:90px;padding:20px 60px 17px 20px;border-bottom:1px solid var(--sidebar-border)}
+.brandIdentity{display:flex;min-width:0;gap:12px;align-items:center}
 .sidebarToggle{position:absolute;right:12px;top:31px;display:grid;width:32px;height:32px;place-items:center;padding:0;border:1px solid rgba(255,255,255,.12);border-radius:9px;background:rgba(255,255,255,.055);color:rgba(255,255,255,.68);cursor:pointer;transition:background-color .15s ease,color .15s ease,border-color .15s ease}
-.sidebarToggle:hover{background:rgba(163,230,53,.1);border-color:rgba(163,230,53,.28);color:#C8F779}.sidebarToggle:focus-visible{outline:2px solid var(--brand-lime);outline-offset:2px}.sidebarCollapsed .sidebarToggle{right:24px}.sidebarCollapsed .sidebarToggle .uiIcon{transform:scaleX(-1)}
-.sidebarCollapsed .brandWrap{justify-content:center;padding-right:12px;padding-left:12px}.sidebarCollapsed .brandLockup,.sidebarCollapsed .navCaption,.sidebarCollapsed .eventFolderCopy,.sidebarCollapsed .eventFolderStatus>.uiIcon,.sidebarCollapsed .appVersion{display:none}
+.sidebarToggle:hover{background:rgba(163,230,53,.1);border-color:rgba(163,230,53,.28);color:#C8F779}.sidebarToggle:focus-visible{outline:2px solid var(--brand-lime);outline-offset:2px}.sidebarCollapsed .sidebarToggle{position:static}.sidebarCollapsed .sidebarToggle .uiIcon{transform:scaleX(-1)}
+.sidebarCollapsed .brandWrap{justify-content:center;padding:20px 12px 17px}.sidebarCollapsed .navCaption,.sidebarCollapsed .eventFolderCopy,.sidebarCollapsed .eventFolderStatus>.uiIcon,.sidebarCollapsed .appVersion{display:none}
 .sidebarCollapsed .sidebar nav{padding-right:12px;padding-left:12px}.sidebarCollapsed .sidebar nav button{justify-content:center;padding-right:10px;padding-left:10px;font-size:0}.sidebarCollapsed .sidebar nav button span{font-size:16px}
 .sidebarCollapsed .sidebarFooter{padding-right:10px;padding-left:10px}.sidebarCollapsed .sidebar .eventFolderStatus{display:grid;grid-template-columns:1fr;place-items:center;padding:9px}.sidebarCollapsed .eventFolderIcon{width:31px}
 .brandGlyph{position:relative;display:grid;width:31px;height:31px;flex:0 0 auto;place-items:center;border:1.5px solid rgba(255,255,255,.72);border-radius:50%}.brandGlyph::before{position:absolute;top:-5px;width:12px;height:3px;border-radius:999px;background:var(--brand-lime);box-shadow:0 0 12px rgba(163,230,53,.5);content:""}.brandGlyph>span{width:13px;height:13px;border:1.5px solid rgba(255,255,255,.32);border-radius:50%}
@@ -1172,8 +1173,8 @@ html[data-theme="dark"] #demandEditModalBody .allocSummaryDetails{background:lin
 }
 @media (max-width:900px){
   .appShell,.appShell.sidebarCollapsed{display:block}.sidebar{position:sticky;height:auto;max-height:none;min-height:0;border-right:0;border-bottom:1px solid var(--sidebar-border)}
-  .sidebar .brandWrap{min-height:58px;padding:11px 16px}.brandMark img{width:108px}.navCaption,.sidebarFooter{display:none}
-  .sidebarCollapsed .brandWrap{justify-content:flex-start;padding:11px 16px}.sidebarCollapsed .brandLockup{display:grid}.sidebarToggle,.sidebarCollapsed .sidebarToggle{right:14px;top:13px}.sidebarCollapsed .sidebarToggle .uiIcon{transform:none}.sidebarCollapsed .sidebar nav{display:none}
+  .sidebar .brandWrap{min-height:58px;padding:11px 58px 11px 16px}.brandMark img{width:108px}.navCaption,.sidebarFooter{display:none}
+  .sidebarCollapsed .brandWrap{justify-content:flex-end;padding:11px 14px}.sidebarToggle,.sidebarCollapsed .sidebarToggle{position:absolute;right:14px;top:13px}.sidebarCollapsed .sidebarToggle .uiIcon{transform:none}.sidebarCollapsed .sidebar nav{display:none}
   .sidebar nav{min-height:auto;flex:none;flex-direction:row;flex-wrap:nowrap;gap:4px;padding:7px 10px 9px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-gutter:auto;scroll-padding-inline:10px}.sidebar nav button{width:auto;min-width:max-content;min-height:36px;padding:8px 10px;font-size:10px}.sidebar nav button:last-child{margin-right:4px;margin-bottom:0}.sidebar nav button:hover{transform:none}.sidebar nav button.active{box-shadow:inset 0 -2px 0 var(--brand-lime)}
   header.topbar{top:110px;min-height:72px;padding:11px 16px}.eyebrow{display:none}.sectionTitleRow h1{font-size:18px}
   main.workspaceContent{padding:16px}.workspaceFooter{padding:14px 16px 18px}

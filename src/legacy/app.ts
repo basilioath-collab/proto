@@ -4613,6 +4613,9 @@ export function bootstrapOrizon(): void {
       const archiveCurrent = await readEventArrayFromHandle(archiveHandle);
       await writeJsonToFileHandle(archiveHandle, mergeEventListsUnique(archiveCurrent, archived));
       await writeEventArrayToHandle(handle, remaining, '', '', { currentDoc });
+      const verifiedRemaining = await readEventArrayFromHandle(handle);
+      const uncleared = verifiedRemaining.filter(ev => ev && ev.id && consolidatedIds.has(String(ev.id)));
+      if (uncleared.length) throw new Error(`${name}: ${uncleared.length} evento(s) permaneceram no arquivo ativo após a limpeza.`);
       archivedEventCount += archived.length;
       activeFilesTouched += 1;
       archivedFiles.push(String(name));
@@ -4633,6 +4636,17 @@ export function bootstrapOrizon(): void {
       archiveFolder: `events/archive/${folderName}`,
       archivedFiles: [...new Set(archivedFiles)]
     };
+  };
+
+  const verifyConsolidatedSnapshot = async (expectedEvents=[]) => {
+    const writtenSnapshot = await readSnapshotFromEventFolder();
+    const writtenIds = eventIdsSet(writtenSnapshot.events || []);
+    const missingIds = eventIdsSet(expectedEvents || []);
+    for (const id of writtenIds) missingIds.delete(id);
+    if (missingIds.size) {
+      throw new Error(`SNAP GERAL não confirmou ${missingIds.size} evento(s); os arquivos de origem foram preservados.`);
+    }
+    return writtenSnapshot;
   };
 
   const writeSingleEventToUserFile = async (event) => {
@@ -5080,10 +5094,15 @@ export function bootstrapOrizon(): void {
         compactedEventReceiptCount: (merged.events || []).length
       };
       await writeJsonToFileHandle(capviewSnapshotFileHandle, normalizeImportedState(merged));
+      await verifyConsolidatedSnapshot(events);
+      forgetLocalEventsFromOutbox(events.map(ev => ev?.id).filter(Boolean));
 
       let archiveSummary = null;
       try {
-        archiveSummary = await archiveAndClearConsolidatedEventFiles(events, { snapshotEvents: snapshot.events || [] });
+        archiveSummary = await archiveAndClearConsolidatedEventFiles(sharedEvents, { snapshotEvents: snapshot.events || [] });
+        if (sharedEvents.length && (!archiveSummary || archiveSummary.archivedEventCount < sharedEvents.length || !archiveSummary.activeFilesTouched)) {
+          throw new Error('SNAP GERAL foi atualizado, mas nem todos os eventos foram arquivados e zerados nos arquivos de origem.');
+        }
         if (archiveSummary && archiveSummary.archiveFolder) {
           merged.meta = {
             ...(merged.meta && typeof merged.meta === 'object' ? merged.meta : {}),
@@ -5101,6 +5120,7 @@ export function bootstrapOrizon(): void {
           lastArchiveError: archiveError?.message || 'Falha ao arquivar eventos ativos'
         };
         try { await writeJsonToFileHandle(capviewSnapshotFileHandle, normalizeImportedState(merged)); } catch {}
+        throw new Error('SNAP GERAL atualizado, porém os arquivos de eventos não foram zerados: ' + (archiveError?.message || 'falha de limpeza'));
       }
 
       state = normalizeImportedState(merged);
